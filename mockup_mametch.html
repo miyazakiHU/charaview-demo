@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>キャラリアクション Chrome拡張 モック</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Noto Sans JP', sans-serif; background: #0f0f0f; color: #f1f1f1; overflow-x: hidden; }
+  .youtube-mock { max-width: 1200px; margin: 0 auto; padding: 20px; display: grid; grid-template-columns: 1fr 360px; gap: 24px; align-items: start; }
+  .yt-header { grid-column: 1 / -1; display: flex; align-items: center; gap: 16px; padding: 8px 0 16px; border-bottom: 1px solid #272727; margin-bottom: 8px; }
+  .yt-logo { display: flex; align-items: center; gap: 4px; font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+  .yt-logo-icon { width: 32px; height: 22px; background: #ff0000; border-radius: 5px; display: flex; align-items: center; justify-content: center; }
+  .yt-logo-icon::after { content: ''; width: 0; height: 0; border-left: 8px solid #fff; border-top: 5px solid transparent; border-bottom: 5px solid transparent; margin-left: 2px; }
+  .yt-search { flex: 1; max-width: 500px; margin: 0 auto; display: flex; }
+  .yt-search input { flex: 1; background: #121212; border: 1px solid #303030; border-right: none; border-radius: 20px 0 0 20px; padding: 8px 16px; color: #f1f1f1; font-size: 14px; font-family: inherit; outline: none; }
+  .yt-search button { background: #222; border: 1px solid #303030; border-radius: 0 20px 20px 0; padding: 8px 20px; color: #f1f1f1; cursor: pointer; font-size: 14px; }
+  .video-area { min-width: 0; }
+  .video-player { width: 100%; aspect-ratio: 16/9; background: #000; border-radius: 12px; position: relative; overflow: hidden; }
+  .video-title { margin-top: 12px; font-size: 17px; font-weight: 700; line-height: 1.4; }
+  .video-meta { margin-top: 6px; font-size: 13px; color: #aaa; display: flex; gap: 8px; }
+  .video-channel { margin-top: 14px; display: flex; align-items: center; gap: 12px; }
+  .channel-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6, #6366f1); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; }
+  .channel-info { flex: 1; }
+  .channel-name { font-size: 14px; font-weight: 500; }
+  .channel-subs { font-size: 12px; color: #aaa; }
+
+  /* Extension Panel - Mametch warm yellow theme */
+  .extension-panel { background: linear-gradient(180deg, #1a1708 0%, #14120a 100%); border: 1px solid #3a3210; border-radius: 16px; overflow: hidden; position: sticky; top: 20px; box-shadow: 0 4px 24px rgba(234, 179, 8, 0.10); }
+  .extension-header { padding: 16px 18px; background: linear-gradient(135deg, #2e2808 0%, #221e06 100%); border-bottom: 1px solid #4a4018; display: flex; align-items: center; gap: 12px; }
+  .extension-icon { width: 36px; height: 36px; border-radius: 10px; background: linear-gradient(135deg, #eab308, #ca8a04); display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+  .extension-title-area { flex: 1; min-width: 0; }
+  .extension-title { font-size: 13px; font-weight: 700; color: #fde047; letter-spacing: 0.3px; }
+  .extension-subtitle { font-size: 11px; color: #a09060; margin-top: 1px; }
+  .extension-badge { background: #22c55e; color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 10px; letter-spacing: 0.5px; }
+  .char-info { padding: 14px 18px; display: flex; align-items: center; gap: 12px; border-bottom: 1px solid #3a3210; background: rgba(234, 179, 8, 0.03); }
+  .char-avatar { width: 44px; height: 44px; border-radius: 50%; background: linear-gradient(135deg, #fde047, #eab308); border: 2px solid #eab308; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .char-details { flex: 1; min-width: 0; }
+  .char-name { font-size: 14px; font-weight: 700; color: #fef3c7; }
+  .char-desc { font-size: 11px; color: #a09060; margin-top: 2px; line-height: 1.3; }
+
+  /* Reactions */
+  .reactions-area { padding: 6px 0; max-height: 520px; overflow-y: auto; }
+  .reactions-area::-webkit-scrollbar { width: 4px; }
+  .reactions-area::-webkit-scrollbar-thumb { background: #3a3210; border-radius: 2px; }
+  .reaction-item { padding: 12px 18px; border-bottom: 1px solid rgba(58, 50, 16, 0.5); transition: background 0.2s; cursor: default; }
+  .reaction-item:hover { background: rgba(234, 179, 8, 0.05); }
+  .reaction-item:last-child { border-bottom: none; }
+  .reaction-timestamp { font-size: 11px; color: #eab308; font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 5px; display: inline-flex; align-items: center; gap: 5px; }
+  .reaction-timestamp::before { content: ''; display: inline-block; width: 6px; height: 6px; background: #eab308; border-radius: 50%; }
+  .reaction-text { font-size: 13px; line-height: 1.65; color: #e5dcc4; font-weight: 300; }
+  .reaction-detail { display: none; margin-top: 10px; padding: 10px 12px; background: rgba(234, 179, 8, 0.06); border-left: 2px solid #eab308; border-radius: 0 8px 8px 0; font-size: 12.5px; line-height: 1.7; color: #c4b8a0; font-weight: 300; }
+  .reaction-detail.open { display: block; }
+  .reaction-expand { display: inline-flex; align-items: center; gap: 4px; margin-top: 8px; padding: 4px 10px; background: rgba(234, 179, 8, 0.10); border: 1px solid rgba(234, 179, 8, 0.25); border-radius: 12px; font-size: 11px; color: #eab308; cursor: pointer; font-family: inherit; transition: background 0.2s; }
+  .reaction-expand:hover { background: rgba(234, 179, 8, 0.18); }
+  .reaction-expand .arrow { transition: transform 0.2s; font-size: 10px; }
+  .reaction-expand.opened .arrow { transform: rotate(180deg); }
+  .extension-footer { padding: 12px 18px; border-top: 1px solid #3a3210; text-align: center; }
+  .extension-footer-text { font-size: 10px; color: #5a5030; letter-spacing: 0.3px; }
+  @media (max-width: 900px) { .youtube-mock { grid-template-columns: 1fr; } .extension-panel { position: static; } }
+</style>
+</head>
+<body>
+<div class="youtube-mock">
+  <div class="yt-header">
+    <div class="yt-logo"><div class="yt-logo-icon"></div> YouTube</div>
+    <div class="yt-search">
+      <input type="text" value="業界研究 就活 8業界" readonly>
+      <button>🔍</button>
+    </div>
+  </div>
+
+  <div class="video-area">
+    <div class="video-player">
+      <iframe
+        width="100%"
+        height="100%"
+        src="https://www.youtube.com/embed/1JvxokQymvI"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+        style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:12px;"
+      ></iframe>
+    </div>
+    <div class="video-title">【業界研究完全攻略】8業界を10分で解説｜朝学ナビ就活チャンネル</div>
+    <div class="video-meta">
+      <span>就活向け解説</span>
+      <span>•</span>
+      <span>約10分</span>
+    </div>
+    <div class="video-channel">
+      <div class="channel-avatar">朝</div>
+      <div class="channel-info">
+        <div class="channel-name">朝学ナビ就活チャンネル</div>
+        <div class="channel-subs">就活情報発信チャンネル</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="extension-panel">
+    <div class="extension-header">
+      <div class="extension-icon">⚡</div>
+      <div class="extension-title-area">
+        <div class="extension-title">CharaView</div>
+        <div class="extension-subtitle">キャラクター解説モード</div>
+      </div>
+      <div class="extension-badge">LIVE</div>
+    </div>
+
+    <div class="char-info">
+      <div class="char-avatar">🥚</div>
+      <div class="char-details">
+        <div class="char-name">まめっち</div>
+        <div class="char-desc">たまごっち星の天才発明家<br>IQ250・何事にも一生懸命！</div>
+      </div>
+    </div>
+
+    <div class="reactions-area">
+      <div class="reaction-item">
+        <div class="reaction-timestamp">0:02</div>
+        <div class="reaction-text">8業界を10分！ でもその前に、「業界研究って何のためにやるの？」がモヤモヤしてる人、いませんか？ 僕が最初に整理しておきますね！</div>
+        <button class="reaction-expand" onclick="toggleDetail(this)">もっと詳しく <span class="arrow">▼</span></button>
+        <div class="reaction-detail">業界研究って、実は「業界の情報を暗記すること」じゃないんです。目的は大きく2つ。<br><br><b>① 自分がどこで働きたいか、選択肢を知ること。</b>世の中にどんな仕事があるのかを知らないと、そもそも選べないですよね。知らない業界は志望しようがない。だからまず「こんな業界があるんだ」と知ること自体が大事なんです。<br><br><b>② ESや面接で「なぜこの業界？」に答えるための材料を集めること。</b>面接官は必ず「なぜうちの業界を？」と聞いてきます。その時に業界の特徴や課題を知っていれば、説得力のある理由が言えます。<br><br>つまり業界研究の「完成」って、全業界を完璧に暗記することじゃなくて、「自分はこの業界に興味がある。なぜならこうだから」と言えるようになること。今日の動画はそのための第一歩として、ざっくり全体像をつかむためのものですよ！<br><br>僕も発明する時、最初に全体の設計図を描いてから細部に入ります。業界研究も同じ。まず全体を見て、気になるところを深掘りする。この順番が大事なんです！</div>
+      </div>
+      <div class="reaction-item">
+        <div class="reaction-timestamp">0:42</div>
+        <div class="reaction-text">「原料素材メーカー」と「加工組み立てメーカー」、なんで分けるのか分かりますか？ これ、就活では結構大事な区別なんです！</div>
+        <button class="reaction-expand" onclick="toggleDetail(this)">もっと詳しく <span class="arrow">▼</span></button>
+        <div class="reaction-detail">メーカーと一口に言っても、仕事の中身が全然違うんです。<br><br><b>原料素材メーカー</b>は鉄、ゴム、化学製品など「材料」を作る会社。お客さんは一般消費者じゃなくて他の企業です。だから僕たちが名前を知らない会社が多い。でも実はこの業界がないと何も作れない。<br><br><b>加工組み立てメーカー</b>はその材料を使って、食品、家電、自動車など「最終製品」を作る会社。トヨタとかソニーとかはこっち。<br><br>なぜこの区別が大事かというと、就活で「メーカー志望です」だけだとぼんやりしすぎるからです。「素材を通じてあらゆる産業を支えたい」のか「消費者に届く製品を作りたい」のかで、志望動機も仕事の中身も全然違う。面接で「うちの会社が何を作ってるか分かってる？」と聞かれた時に、この区別ができてないと困りますよ！<br><br>僕の発明も、いい材料がないと始まらないんです。素材って地味だけど、実はすごく大事なんですよね。</div>
+      </div>
+      <div class="reaction-item">
+        <div class="reaction-timestamp">1:42</div>
+        <div class="reaction-text">商社って「物を右から左に流すだけ」って思ってませんか？ 実は全然違うんです。ここ、よく誤解される部分なので説明しますね！</div>
+        <button class="reaction-expand" onclick="toggleDetail(this)">もっと詳しく <span class="arrow">▼</span></button>
+        <div class="reaction-detail">商社の仕事は「仲介」だと思われがちですが、今の商社はもっと幅広いことをやっています。<br><br><b>① トレーディング（売買仲介）</b>：メーカーの製品を小売に届ける。輸出入を仲介する。これが元々の仕事。<br><br><b>② 事業投資</b>：海外の会社に投資して、経営にも参加して利益を得る。「投資会社」に近い動きです。動画で「海外の事業企業に投資をして利益を得る」と言っていたのがこれ。<br><br><b>③ コーディネーター機能</b>：資金調達、在庫管理、市場調査、物流の最適化など、メーカーと小売の間で起きるあらゆる問題を解決する。<br><br>つまり商社って「物を動かすプロ」というより「ビジネスの困りごとを何でも解決する何でも屋さん」に近いんです。<br><br>ちなみに「総合商社」は日本独特のビジネスモデルで、海外にはあまりないんですよ。だから英語でも「Sogo Shosha」とそのまま呼ばれることがあります。僕、こういう日本独自のものにはちょっと誇らしい気持ちになります！</div>
+      </div>
+      <div class="reaction-item">
+        <div class="reaction-timestamp">4:11</div>
+        <div class="reaction-text">金融の説明で「マイナス金利」って出ましたね。これ、ニュースでよく聞くけど意味がよく分からない人、多いんじゃないかな。僕が整理しますね！</div>
+        <button class="reaction-expand" onclick="toggleDetail(this)">もっと詳しく <span class="arrow">▼</span></button>
+        <div class="reaction-detail">まず銀行の基本的な収益構造を説明します。銀行は「お金を預かって、それを別の人に貸す」のが仕事。預金者には低い金利を払い（例：0.01%）、借りる人からは高い金利をもらう（例：1.5%）。この差額が銀行の収益です。<br><br>「マイナス金利」というのは、日本銀行（国の中央銀行）が民間の銀行に対して「日銀にお金を預けたら、利息をもらえるどころか逆に手数料を取るよ」という政策です。<br><br>なぜこんなことをするかというと「銀行さん、日銀にお金を眠らせてないで、企業や個人にもっと貸してよ。そうすれば経済が回るでしょ？」と促すためです。<br><br>でも結果として、金利全体が下がりすぎて銀行の収益（金利の差額）がすごく小さくなった。だから「厳しかった」と動画で言っているんです。2024年にこの政策が解除されたので、金利が上がり始めて銀行は一息ついた、ということですね。<br><br>金融業界を志望するなら「なぜ今、金融業界が上向いているのか」をこのレベルで説明できると、面接でかなり評価されると思いますよ！ 僕も試験勉強の時は、ただ覚えるんじゃなくて「なぜそうなるか」を理解するようにしてるんです。そのほうが忘れにくいので！</div>
+      </div>
+      <div class="reaction-item">
+        <div class="reaction-timestamp">5:28</div>
+        <div class="reaction-text">サービス業界って範囲が広すぎて「結局なんなの？」ってなりません？ メーカーや商社との違いをはっきりさせておきますね！</div>
+        <button class="reaction-expand" onclick="toggleDetail(this)">もっと詳しく <span class="arrow">▼</span></button>
+        <div class="reaction-detail">分かりにくさの原因は「形がないものを売る」という定義が広すぎることなんです。整理しましょう。<br><br>メーカー → <b>物を作る</b><br>商社 → <b>物を動かす</b><br>小売 → <b>物を消費者に売る</b><br>サービス → <b>物じゃなくて「体験」や「能力」を売る</b><br><br>ホテルは「快適に泊まれる体験」、コンサルは「問題解決の能力」、人材会社は「企業と人のマッチング」を売っている。手に取れる商品がないのが共通点です。<br><br>就活で大事なのは「サービス業界に行きたい」じゃなくて「サービス業界の中の何に興味があるか」まで絞ること。旅行とコンサルでは仕事の中身が全然違いますからね。<br><br>ちなみにこの動画で「41.2%の会社が採用を増やす」と言ってるのはサービス業界。コロナで大打撃を受けた業界が一気に人を採りたがっている。チャンスですよ！</div>
+      </div>
+      <div class="reaction-item">
+        <div class="reaction-timestamp">7:47</div>
+        <div class="reaction-text">「DX」って言葉が出ましたけど、これ就活で頻出なのにちゃんと説明できる人が少ない！ 僕は発明家だからこういう話は得意です！</div>
+        <button class="reaction-expand" onclick="toggleDetail(this)">もっと詳しく <span class="arrow">▼</span></button>
+        <div class="reaction-detail">DX（デジタルトランスフォーメーション）を簡単に言うと「ITの力を使って、仕事のやり方や会社の仕組み自体を変えること」です。<br><br>よくある間違いは「紙をデジタルにすること＝DX」だと思うこと。紙の書類をPDFにしただけではDXじゃないんです。それは単なる「デジタル化」。<br><br>DXは、例えばこういうこと。<br>・今まで営業マンが足で回ってた仕事を、データ分析で効率化する<br>・お客さんの行動データをAIで分析して、1人1人に最適な商品を提案する<br>・社内のあらゆる業務をクラウドで繋いで、意思決定のスピードを上げる<br><br>つまり「仕事のやり方そのもの」が変わるのがDX。だからIT企業だけの話じゃなくて、全業界で必要とされている。動画で「あらゆる業界でITの技術が必要になっている」と言ってたのはこういう意味です。<br><br>だからソフトウェア・IT業界に行かなくても、どの業界に行ってもITの知識がある人は重宝される。これ、業界選びのすごく大事なポイントですよ！ 僕の発明も、最近はプログラミングなしでは作れないものばかりで…何事も勉強ですね。</div>
+      </div>
+      <div class="reaction-item">
+        <div class="reaction-timestamp">9:10</div>
+        <div class="reaction-text">8業界の説明が終わりましたね！ ここで一番大事なことを言います。この動画を見ただけでは業界研究は「完了してません」。次に何をすべきか、説明しますね！</div>
+        <button class="reaction-expand" onclick="toggleDetail(this)">もっと詳しく <span class="arrow">▼</span></button>
+        <div class="reaction-detail">今日の動画で分かったのは「各業界のざっくりした全体像」です。これは業界研究の第1段階。ここからのステップを整理しますね。<br><br><b>第1段階（今ここ）</b>：8業界の全体像をざっくり知る → ✅完了<br><br><b>第2段階</b>：気になった業界を2〜3個に絞る。全部深掘りする必要はないです。「面白そうだな」「自分に合いそうだな」と感じたものだけでOK。<br><br><b>第3段階</b>：絞った業界の中の「主要企業」を3〜5社調べる。売上、社員数、強みの違い、最近のニュースなど。<br><br><b>第4段階</b>：その企業で実際に働いている人の話を聞く（OB訪問、説明会など）。ネットの情報だけだと「本当のところどうなの？」が分からないので。<br><br>「業界研究ちゃんとできてるかな…」というモヤモヤの正体は、多くの場合「どこまでやれば十分か分からない」ということだと思うんです。答えは「第4段階まで、志望する業界についてできていればOK」。全業界を第4段階までやる必要は絶対にないです。<br><br>僕も発明の時、全部を完璧にしようとすると絶対に終わらないんです。まず大事なところから片付ける。完璧を目指しすぎないこと。これ、僕自身への戒めでもあるんですけどね…一生懸命になりすぎちゃうことがあるので。一緒にがんばりましょう！</div>
+      </div>
+    </div>
+
+    <div class="extension-footer">
+      <div class="extension-footer-text">CharaView — Chrome Extension Concept</div>
+    </div>
+  </div>
+</div>
+
+</body>
+<script>
+function toggleDetail(btn) {
+  const detail = btn.nextElementSibling;
+  detail.classList.toggle('open');
+  btn.classList.toggle('opened');
+  btn.innerHTML = detail.classList.contains('open')
+    ? '閉じる <span class="arrow">▼</span>'
+    : 'もっと詳しく <span class="arrow">▼</span>';
+}
+</script>
+</html>
