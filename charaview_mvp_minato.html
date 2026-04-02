@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CharaView — みなとと一緒に業界研究</title>
+<link href="https://fonts.googleapis.com/css2?family=M+PLUS+1p:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1A1714;--card:#252119;--card-minato:#2A231B;
+  --text:#EDE6DC;--text-dim:#9B8E7E;--accent:#D4A574;
+  --accent-dim:#A07B54;--btn:#3A3028;--btn-hover:#4A3D30;
+  --radius:12px;--max-w:680px;
+}
+html{scroll-behavior:smooth}
+body{
+  font-family:'M PLUS 1p',sans-serif;background:var(--bg);color:var(--text);
+  line-height:1.8;min-height:100vh;padding-bottom:80px;
+}
+.container{max-width:var(--max-w);margin:0 auto;padding:0 16px}
+
+/* ─── Header ─── */
+.header{text-align:center;padding:48px 0 24px;border-bottom:1px solid #2F2820}
+.header h1{font-size:14px;color:var(--accent);letter-spacing:4px;font-weight:400;margin-bottom:4px}
+.header .sub{font-size:11px;color:var(--text-dim)}
+
+/* ─── Step indicator ─── */
+.step-tag{
+  display:inline-block;font-size:11px;color:var(--accent);
+  border:1px solid var(--accent-dim);border-radius:20px;
+  padding:3px 14px;margin-bottom:16px;letter-spacing:1px;
+}
+
+/* ─── Minato card ─── */
+.minato-card{
+  background:var(--card-minato);border-radius:var(--radius);
+  padding:24px;margin:24px 0;position:relative;
+  border-left:3px solid var(--accent-dim);
+}
+.minato-card .name{
+  font-size:12px;color:var(--accent);font-weight:500;margin-bottom:12px;
+  display:flex;align-items:center;gap:8px;
+}
+.minato-card .name::before{
+  content:'🏮';font-size:14px;
+}
+.minato-card p{margin-bottom:12px;font-size:14px;line-height:1.9}
+.minato-card p:last-child{margin-bottom:0}
+.minato-card strong{color:var(--accent);font-weight:500}
+
+/* ─── Video wrapper ─── */
+.video-wrap{
+  position:relative;width:100%;padding-top:56.25%;
+  background:#000;border-radius:var(--radius);overflow:hidden;
+  margin:16px 0;
+}
+.video-wrap iframe{position:absolute;top:0;left:0;width:100%;height:100%;border:0}
+
+/* ─── Reactions ─── */
+.reactions-area{margin:16px 0 32px}
+.reaction{
+  background:var(--card);border-radius:var(--radius);
+  padding:16px 20px;margin:10px 0;
+  border-left:3px solid var(--accent-dim);
+  opacity:0;transform:translateY(12px);
+  transition:opacity 0.5s ease, transform 0.5s ease;
+}
+.reaction.visible{opacity:1;transform:translateY(0)}
+.reaction .ts{font-size:11px;color:var(--accent);margin-bottom:6px}
+.reaction .summary{font-size:14px;line-height:1.8}
+.reaction .detail-toggle{
+  font-size:12px;color:var(--accent-dim);cursor:pointer;
+  margin-top:8px;border:none;background:none;
+  font-family:inherit;padding:0;
+}
+.reaction .detail-toggle:hover{color:var(--accent)}
+.reaction .detail{
+  font-size:13px;color:var(--text-dim);line-height:1.9;
+  margin-top:12px;padding-top:12px;border-top:1px solid #2F2820;
+  display:none;
+}
+.reaction .detail.open{display:block}
+
+/* ─── Industry buttons ─── */
+.industry-grid{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:20px 0;
+}
+.industry-btn{
+  background:var(--btn);border:1px solid #3F3428;color:var(--text);
+  border-radius:var(--radius);padding:16px 12px;cursor:pointer;
+  font-family:inherit;font-size:14px;font-weight:500;
+  transition:all 0.2s ease;text-align:center;
+}
+.industry-btn:hover{background:var(--btn-hover);border-color:var(--accent-dim)}
+.industry-btn:active{transform:scale(0.97)}
+.industry-btn .sub-label{font-size:11px;color:var(--text-dim);margin-top:4px;display:block}
+
+/* ─── Section visibility ─── */
+.section{display:none}
+.section.active{display:block}
+
+/* ─── Divider ─── */
+.divider{
+  height:1px;background:linear-gradient(to right,transparent,#3A3028,transparent);
+  margin:40px 0;
+}
+
+/* ─── Fade in animation ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.fade-in{animation:fadeUp 0.6s ease forwards}
+</style>
+</head>
+<body>
+
+<div class="container">
+
+<!-- ════════ Header ════════ -->
+<div class="header">
+  <h1>CHARAVIEW</h1>
+  <div class="sub">みなとと一緒に業界研究</div>
+</div>
+
+<!-- ════════ 導入テキスト ════════ -->
+<div class="section active" id="sec-intro">
+<div class="minato-card fade-in">
+  <div class="name">瀬川みなと</div>
+  <p>いらっしゃい。</p>
+  <p>就活、始めたばっかりでしょ。わかるわかる、何からやればいいかわかんないよね。うちの店にも毎年この時期、「就活やばい」って顔した大学生がたまに紛れ込んでくるから、見慣れた光景だよ。</p>
+  <p>私は瀬川みなと。新橋で立ち飲み屋やってるの。大学中退してるから就活はしたことないんだけど、カウンターの向こうには毎晩いろんな業界の社会人が来るわけ。酔うとね、みんな本音こぼしてくんだよね。「この業界入って良かった」も「正直失敗した」も、全部聞いてきた。</p>
+  <p>だから、就活のテクニックは教えられないけど、「その業界に入った先に何があるか」の話なら少しはできる。</p>
+  <p>今日は3ステップで進めるよ。</p>
+  <p><strong>① まず、業界の全体像をざっと見る</strong>（世の中にどんな仕事があるのか、地図を持つ）<br>
+  <strong>② 気になった業界をもうちょっと深掘りする</strong>（実際どんな感じなのか、もう一歩踏み込む）<br>
+  <strong>③ 自分のことを考え直す</strong>（業界のことがわかった上で、じゃあ自分はどこが合いそうか考える）</p>
+  <p>別に一気に全部やんなくていいよ。まずは①から。一緒に見てこ。</p>
+</div>
+
+<!-- ════════ Step 1 ════════ -->
+<div class="divider"></div>
+<span class="step-tag">STEP 1 ─ 業界の全体像</span>
+
+<div class="minato-card">
+  <div class="name">瀬川みなと</div>
+  <p>最初はこの動画。業界の全体像を10分でざっと見れるやつ。</p>
+  <p>前に見たことあるかもしんないけど、もう一回さらっと流してみて。一回目と二回目で引っかかるところ変わったりするもんだから。</p>
+  <p>私もちょいちょい横から口出すけど、気にしないでね。</p>
+</div>
+
+<div class="video-wrap">
+  <iframe id="player-step1" src="https://www.youtube.com/embed/1JvxokQymvI?enablejsapi=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+<!-- Step 1 reactions placeholder (to be added later) -->
+<div class="reactions-area" id="reactions-step1"></div>
+
+<!-- ════════ ブリッジ1: 業界選択 ════════ -->
+<div class="divider"></div>
+
+<div class="minato-card">
+  <div class="name">瀬川みなと</div>
+  <p>お疲れ。ざっと見てみてどうだった？</p>
+  <p>8つの業界、一気に見るとごちゃごちゃするよね。でも全部覚えなくていいからね。就活って、まず「なんか気になる」くらいのゆるい引っかかりから始まるもんだから。</p>
+  <p>ちなみに、うちの店に来る常連たちもね、今の仕事に就いた理由って聞くと「最初はなんとなく」って人がほとんどだよ。「子供の頃からの夢でした」って人、少なくとも私のカウンターでは見たことない。</p>
+  <p>——で、さっきの動画見て、ちょっとでも「へえ」って思った業界あった？ 一個選んでみて。深掘りして見てみよう。</p>
+</div>
+
+<div class="industry-grid" id="industry-buttons">
+  <button class="industry-btn" data-key="step2_maker" data-label="メーカー" data-vid="LuzDCM9K0oQ">メーカー<span class="sub-label">食品・機械・電機 etc</span></button>
+  <button class="industry-btn" data-key="step2_shosha" data-label="商社" data-vid="Ho9MIg5sFgc">商社<span class="sub-label">総合商社・専門商社</span></button>
+  <button class="industry-btn" data-key="step2_kouri" data-label="小売" data-vid="n31050hvn70">小売<span class="sub-label">百貨店・スーパー・コンビニ</span></button>
+  <button class="industry-btn" data-key="step2_kinyu" data-label="金融" data-vid="HFEPAL-SQN8">金融<span class="sub-label">銀行・証券・保険 etc</span></button>
+  <button class="industry-btn" data-key="step2_infra" data-label="サービス" data-vid="SEk2pY_NFzo">サービス<span class="sub-label">鉄道・航空・電力 etc</span></button>
+  <button class="industry-btn" data-key="step2_it" data-label="IT・通信" data-vid="8ppt1vYEMKQ">IT・通信<span class="sub-label">SIer・Web系 etc</span></button>
+  <button class="industry-btn" data-key="step2_ad" data-label="マスコミ・広告" data-vid="rTgewY2vl-c">マスコミ・広告<span class="sub-label">広告・出版・放送 etc</span></button>
+  <button class="industry-btn" data-key="step2_gov" data-label="官公庁・団体" data-vid="6ShgFfnXgLg">官公庁・団体<span class="sub-label">公社・団体</span></button>
+</div>
+</div>
+
+<!-- ════════ Step 2 (hidden until selection) ════════ -->
+<div class="section" id="sec-step2">
+<div class="divider"></div>
+<span class="step-tag">STEP 2 ─ <span id="step2-label">業界深掘り</span></span>
+
+<div class="minato-card" id="step2-bridge">
+  <div class="name">瀬川みなと</div>
+  <p id="step2-bridge-text"></p>
+</div>
+
+<div class="video-wrap">
+  <iframe id="player-step2" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+<div class="reactions-area" id="reactions-step2"></div>
+
+<!-- ════════ ブリッジ2: Step 2 → Step 3 ════════ -->
+<div class="divider"></div>
+
+<div class="minato-card" id="bridge2-card" style="display:none">
+  <div class="name">瀬川みなと</div>
+  <div id="bridge2-text"></div>
+</div>
+
+<!-- ════════ Step 3 ════════ -->
+<div id="sec-step3-inner" style="display:none">
+<div class="divider"></div>
+<span class="step-tag">STEP 3 ─ 自分を考え直す</span>
+
+<div class="minato-card">
+  <div class="name">瀬川みなと</div>
+  <p>これ、自己分析のやり方について話してる動画ね。</p>
+  <p>「また自己分析か……」って思った？ わかる。でも今回はちょっと違う見方できるはずだから、騙されたと思って見てみて。</p>
+</div>
+
+<div class="video-wrap">
+  <iframe id="player-step3" src="https://www.youtube.com/embed/kmwRPmFG6Z8?enablejsapi=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+
+<div class="reactions-area" id="reactions-step3"></div>
+
+<!-- ════════ まとめ ════════ -->
+<div class="divider"></div>
+
+<div class="minato-card" id="summary-card" style="display:none">
+  <div class="name">瀬川みなと</div>
+  <div id="summary-text"></div>
+</div>
+</div><!-- /sec-step3-inner -->
+</div><!-- /sec-step2 -->
+
+</div><!-- /container -->
+
+<script>
+// ─── Reaction Data ───
+const REACTIONS = {"step2_ad": [{"timestamp": "0:34", "seconds": 34.3, "summary": "広告業界、大きく3つ——総合広告代理店、専門広告代理店、ハウスエージェンシー。この3つで仕事の中身が全然違うから、ちゃんと聞いて。", "detail": "広告代理店の人ってさ、確かにコミュニケーション力すごい。うちの店でも一番場を盛り上げてくれるのは広告系の人が多い。でも金曜の深夜に来るとき、目の下のクマがやばいこともある。華やかさの裏にある現実を、この動画はちゃんと言ってくれると思うから、しっかり聞いてね。電通・博報堂は総合、サイバーエージェントは専門——この区別がつくだけで全然違う。"}, {"timestamp": "4:15", "seconds": 255.2, "summary": "専門広告の実態——「一生管理画面ポチポチ見ながら運用」って、動画の人がはっきり言ってるね。全然キラキラしてない。", "detail": "サイバーエージェントとかに入りたいって就活生、結構いると思うんだけど、Web広告の運用って基本的にはデータとにらめっこする地道な仕事なんだよね。動画の人が「華やかに見せてるのがサイバーのブランディング勝ち」って言ってるの、結構核心ついてる。「優秀なオペレーター」が求められてて、クリエイティビティより正確性とスピードが大事って。このギャップを知らずに入ると痛い目見るから、知っといた方がいい。"}, {"timestamp": "6:42", "seconds": 402.6, "summary": "インターネット広告費がテレビを抜いた——これ、業界の地殻変動。コンサルも広告に参入してきてる。", "detail": "動画が「アクセンチュアがマーケティング部門に手を伸ばしてる」って言ったあとに、ネット広告費がテレビを逆転したって話してるでしょ。これ2つ合わせると、広告業界の構造が根っこから変わり始めてるってこと。うちで例えるなら、ラーメン屋しかなかった通りに、ファミレスがラーメン始めたみたいなもん。差別化できない中途半端な代理店は厳しくなる。就活で広告見るなら「この会社は5年後も生き残れるか」って視点、持っておいた方がいい。"}, {"timestamp": "9:18", "seconds": 558.4, "summary": "「ちまちまWeb広告運用してる代理店は需要がなくなる」——動画の人、相当辛辣。でもGoogleのAI自動化を考えると、的を射てる。", "detail": "AIが広告運用を自動学習で調整するようになったら、今まで人間がやってた部分がなくなる。動画の人が「今から小さい専門代理店に行くのはおすすめしない」ってはっきり言ってるのは、この流れを見てるから。ただ、電通みたいな大手は官公庁とのつながりや大企業との実績・信頼があるから、そう簡単には崩れない。残る広告業って何か——結局「人間にしかできないこと」、つまり巨大なプロジェクトの企画力とか、クライアントとの信頼関係に行き着くんだよ。"}, {"timestamp": "13:05", "seconds": 785.2, "summary": "営業・マーケティング・クリエイティブ——この3つは全く別の仕事。「広告やりたい」じゃなくて「どの職種か」まで考えないと。", "detail": "ここが動画の後半で一番大事。広告代理店に入りたい人の多くが「クリエイティブやりたい」って言うんだけど、実は大半が営業に配属される。で、営業はコミュ力とバイタリティの世界。クリエイティブは美大出身とか映像制作経験者の専門職。この2つは全然違う仕事なの。動画の人が「面接でも当然問われますよ、うちで何がやりたいのって」って言ってるけど、そこに答えられないとまず通らない。——あんたが次にやるべきことは、営業・マーケ・クリエイティブのどれに自分が向いてるか考えること。それと、総合か専門かも決めた方がいい。"}], "step2_gov": [{"timestamp": "1:04", "seconds": 64.7, "summary": "「ゼロからわかる公務員の種類」——うちの常連にも公務員いるけど、最初ぎこちなかった人が3回目くらいから急に饒舌になるんだよね。", "detail": "公務員の人って立ち飲み屋みたいなカジュアルな場に慣れてない人が多いの。最初は「ビール一つ」しか言わない。でも3回目くらいから「実は今の部署が——」って話し始める。本当は話したいことがいっぱいある人たち。この動画、10分弱で短いけど公務員の全体像がコンパクトにまとまってるから、「安定してそう」ってぼんやりしたイメージしかない人にはいいと思う。"}, {"timestamp": "3:26", "seconds": 206.2, "summary": "地方公務員は市役所ならその市の中でしか仕事しない——転勤がほぼない。これ、地元で暮らしたい人にとっては相当でかいメリットだよ。", "detail": "転勤の話って就活だと後回しにされがちだけど、実は生活に一番影響する。うちの常連で銀行から市役所に転職した人がいてさ、「給料は下がったけど、毎日家で晩ごはん食べられるようになった」って。で、その人の顔、転職前より全然いいの。お金と生活のバランスって、思ってる以上に大事。動画でも「転勤が嫌な人には地方公務員おすすめ」って言ってるけど、ほんとそうだと思う。"}, {"timestamp": "5:55", "seconds": 355.6, "summary": "「忙しそうってイメージ」——でも部署によって全然違うって話。終電帰りの人もいれば有給取って遊んでる人もいる。", "detail": "動画の先生が正直に言ってくれてるね。「いつも終電で帰ってる人もいれば、有給取って遊びに行く人もいる。差がすごい」って。公務員を「安定してて暇」だと思って入ると、激務の部署に配属されたとき心折れる。うちの常連の国家公務員が「国会開会中は地獄。閉会中は天国」って言ってたけど、タイミングと部署で天と地の差。OB訪問で具体的に聞くのが一番確実だよ。"}, {"timestamp": "6:48", "seconds": 408.9, "summary": "配属先は「正直もう運」——動画の先生がはっきり言ったね。配属ガチャ、公務員もあるんだ。", "detail": "面接で意向聴取はあるけど、最終的には枠が空いてるかどうか。動画で出てきた「友人が父島に配属された」って話、最初は不安がってたけどSNS見てるとだんだん楽しそうになっていったって。どこに行っても楽しめるタイプの人は地方公務員に向いてる。逆に「この分野じゃなきゃ嫌」って人は、動画でも言ってるように特定の省庁で働く国家公務員の方がフィットするかもね。"}, {"timestamp": "9:12", "seconds": 552.4, "summary": "「40年仕事をしていく場所を決める」——この動画のまとめの一言、重いけど大事だよ。公務員に限らず全業界に言えること。", "detail": "先生が最後に「住民の生活を支えてるっていう重要な意義がある」って言ってるのが刺さる。うちの常連の公務員さんたちもさ、派手な仕事はしてないけど、「台風の時に避難所開けるのは自分たちだから」って静かに使命感を持ってる。それと、動画で触れてたSPIに試験を変えてる自治体が増えてるって話——公務員試験のハードルが下がってきてるのは本当みたい。選択肢として残しておく価値はあるよ。"}], "step2_infra": [{"timestamp": "1:12", "seconds": 72.6, "summary": "1882年、渋沢栄一が東京電灯を創業——電力業界の歴史って、日本の産業史そのものなんだね。", "detail": "インフラ系の人って、うちに来ても目立たないの。静かに飲んで、静かに帰る。でも大きな災害があった後に深夜の復旧作業帰りの顔で来ることがあって、そのとき「この人たちが社会を支えてるんだ」って思い知らされる。電力業界って「安定」のイメージだけど、中の人はドラマチックな仕事してる。動画がこれから見せてくれる歴史パート、かなり面白いから集中して。"}, {"timestamp": "2:12", "seconds": 132.3, "summary": "松永安左エ門——「官僚は国家のクズ」って言い放った電力王。この人がいなかったら今の電力会社は存在しない。", "detail": "軍部の時代に電力国有化に反対して、粛清対象に挙げられてもなお戦い続けた人。戦後は池田隼人を巻き込んで、GHQを説得して、地域ごとの電力会社制度を作った。この歴史、就活の面接で「なぜ電力業界に？」って聞かれたとき、知ってるのと知らないのじゃ説得力が段違いだよ。知らんけど。"}, {"timestamp": "5:10", "seconds": 310.2, "summary": "東京電力——原発事故からの信頼回復がテーマ。20兆円の賠償を背負いながら仕事をするって、想像を超える重さだよ。", "detail": "動画が柏崎刈羽原発の再稼働交渉の話をしてるでしょ。新潟県民からすれば、リスクはあるけど電気は首都圏に行く。リスクだけ背負ってリターンがない。この構造的な矛盾を、現場で1つずつ解きほぐしていくのが今の東京電力の仕事なんだよ。安定した職場って言われてたのが、2011年に一夜で変わった。でもだからこそ「二度と同じことを起こさない」って覚悟で仕事してる人たちがいる。そういう責任感がある人に向いてる会社。"}, {"timestamp": "8:10", "seconds": 490.6, "summary": "関西電力——原子力と水力で発電量の55%以上がCO2ゼロ。採用ページに大きく「挑戦」って書いてあるんだって。", "detail": "東京電力が「信頼回復」なら関西電力は「改革」がキーワード。データセンター事業にも参入してるって動画で言ってるでしょ。電力会社がIT企業みたいなことやり始めてるの。「安定」だけで電力業界を見てるなら、認識をアップデートした方がいいかもね。"}, {"timestamp": "13:00", "seconds": 781.0, "summary": "3社の違い、見えてきた？ 東京は「責任」、関西は「挑戦」、中部は「海外」。同じ電力でもここまで違う。", "detail": "うちの商売で例えるなら、東京電力は「一度大きな失敗をした老舗が信頼を取り戻そうとしてる店」、関西電力は「伝統を守りながら新メニューにも挑む店」、中部電力は「地元が厳しいから海外出店にも踏み出す店」。あんたの性格とどれが合うか——責任感を軸にするのか、挑戦を軸にするのか、多様性を軸にするのか。3社の新卒採用ページ、覗いてみて。メッセージの温度感が全然違うから。"}], "step2_it": [{"timestamp": "0:27", "seconds": 27.9, "summary": "IT業界って大きなくくりの中に色んな業種がある——ここ、この動画の一番大事なメッセージだから最初に言っとくね。", "detail": "IT系の人、うちみたいな立ち飲み屋にはあんまり来ないんだよね。来る人は大体2パターンで、「今の会社辞めようと思って」っていう相談か、「起業しました」っていう報告。つまりIT業界って流動性がすごく高い。その理由がこの動画でわかると思う。「IT業界」って一括りにしてるけど、中身は6つに分かれてて、待遇も労働環境も全然違うっていう話をこれからしてくれるから、ちゃんと聞いてね。"}, {"timestamp": "2:22", "seconds": 142.1, "summary": "6つの分野——アプリ開発、Web制作、ハードウェア、ソフトウェア、SIer、通信。これ、同じ「IT」なのに世界が全然違う。", "detail": "動画の人が「IT業界はキラキラしてるっていうイメージは全ての業界には当てはまらない」って言ってるでしょ。これほんとそう。一部はリモートワークOKで年収高いけど、一部は残業だらけで労働環境悪い。うちに来たIT辞めた人が言ってたのは「入社する時に自社開発かSIerかちゃんと見なかった」って。この6つの分野の違いがわかると、「IT行きたいです」って面接で言ったときに「ITの何？」って返されても答えられるようになる。"}, {"timestamp": "5:13", "seconds": 313.9, "summary": "Web制作業界——クライアントワークだから納期に追われやすいって話。これ、飲食店と同じだから気持ちわかるんだよね。", "detail": "動画の人自身がベトナムでWeb制作のインターン経験あるって言ってるね。で、「納期に迫られる」「残業が多い場合がある」って正直に言ってる。クライアントワークってさ、自分のペースで仕事できないのが一番きつい。うちの店も法事のケータリング頼まれると仕込み計画が全部崩れる。ただ、動画でも触れてるけど、Web制作で身につけたスキルでフリーランスになる人は多い。だから「入口として割り切って数年経験積む」って戦略もアリなんだよね。年収482万って出てるけど、フリーになった後の天井はもっと高い。"}, {"timestamp": "9:24", "seconds": 565.0, "summary": "ハードウェア業界は「多重下請け構造」——ここ、IT業界の闇の部分。SIerにも同じ話が出てくるから、覚えといて。", "detail": "動画が「大手に就職できれば年収600万以上見込める。でも下請けの方に就職すると労働環境が悪くなる」ってサラッと言ったでしょ。この「多重下請け構造」ってのは、大手が仕事受けて→下請けに出して→そのまた下請けに出して……ってやつ。下に行くほど給料下がるし環境悪くなる。飲食業界にも似た構造あるから他人事じゃないんだけどさ。IT行くなら「この会社は1次請けなのか、2次・3次なのか」を絶対確認した方がいい。"}, {"timestamp": "11:37", "seconds": 697.4, "summary": "SIer——IT業界で「やばい」って言われがちなのはだいたいここが原因。でも大手は話が別。NTTデータとか日立とかに入れればキャリアは安定する。", "detail": "「SIerはクライアントワークでシステム開発をするBtoBの業界」って動画が説明してるね。ブラックなイメージがあるのは多重下請け構造のせいなんだけど、NTTデータとか日立みたいな大手に入れば年収もいいし、巨大なシステムを設計する面白さもある。うちに来たIT辞めた人の半分くらいは下請けSIerにいた人だったけど、大手SIerの人は割と楽しそうに仕事の話してくれるの。動画の人も「なるべくレイヤーの高い企業に勤めるように」って言ってる。ここ、就活で一番大事なポイントだと思う。"}, {"timestamp": "15:29", "seconds": 929.8, "summary": "「IT業界を一括りにするのは危険」——まとめのこの一言が全て。あんたが覚えて帰る一番大事なこと。", "detail": "動画通して見てどうだった？ 6つの分野で待遇も労働環境も全然違うってこと、わかったと思う。「IT行きたい」だけじゃなくて「ITの中のどの分野に行きたいか」「その会社はどのレイヤーにいるか」まで考えないと、入ってから「思ってたのと違う」ってなるよ。——あんたが次にやるといいのは、6つの分野から「向いてそう」って思ったのを1つ選んで、代表企業の採用ページを見てみること。仕事内容の欄を読むと、動画の説明がもっと具体的にイメージできるようになるから。"}], "step2_kinyu": [{"timestamp": "0:03", "seconds": 3.3, "summary": "「直接金融と間接金融の違い、ご存知ですか？」——冒頭からいきなり質問してくるね。金融の人って、うちの常連で見てると飲み方に一番差がある業界なんだよ。", "detail": "金融業界って「高収入」が最初に来るイメージでしょ。確かにそう。でもうちのカウンターから見てると、金融の人って業界内で飲み方の差がすごいの。証券の人は金曜に爆発するように飲む。銀行の人は毎週同じ曜日に同じペースで飲む。保険の人は来る頻度にムラがある。つまり、同じ「金融業界」でも働き方が全然違うってこと。この動画、直接金融と間接金融の違いから入って、各業界を丁寧に分けてくれるから、自分に合うのがどこか考えながら見てみて。"}, {"timestamp": "1:10", "seconds": 70.8, "summary": "友達にお金を貸すのが直接金融、銀行を通すのが間接金融——この例え、わかりやすいね。ここが金融業界の地図を読む鍵だから。", "detail": "この「直接か間接か」がわかると、金融業界の全体像が一気に見えるようになる。証券は直接金融——投資家と企業を直接つなぐ。銀行は間接金融——預金者のお金を企業に貸す。で、どっち側に立つかで仕事の性質がガラッと変わるの。証券は「この株買え！」って攻める仕事。銀行は「この会社に貸して大丈夫か」って守る仕事。攻めたいか守りたいか、自分の性格と照らし合わせてみて。"}, {"timestamp": "5:18", "seconds": 318.6, "summary": "信用金庫・信用組合——年収は他より低いけど「ワークライフバランスもしっかり担保」って動画が言ってるね。地味だけど、ここ見落とさないで。", "detail": "信金の常連さんがうちにいてね、毎週木曜の決まった時間に来るの。「残業ないんで」って。転勤は県内だし、人間関係も温かいって。「地元の商店街のおっちゃんが融資のお礼にお菓子持ってくる」みたいな世界。華やかさはないけど、地元で安定して暮らしたい人には実はすごくいい選択肢。年収だけで仕事選ぶと後で「思ってたのと違う」ってなる人、カウンターで何人も見てきたからさ。"}, {"timestamp": "9:43", "seconds": 583.1, "summary": "証券業界は「きついノルマ」「体育会系激務」——でもその分給料は高いし得られるスキルも大きい。動画もフェアに両面言ってるね。", "detail": "証券の若手がうちに来ると、2パターンなの。すごく生き生きしてるか、すごく疲弊してるか。中間がない。合う人は「毎月数字がリセットされるのが逆に気持ちいい」って言う。合わない人は「永遠に走り続けるみたいで」って言う。同じ仕組みなのに感じ方が真逆。動画でネット証券っていう選択肢も出てきてるでしょ。ゴリゴリの営業じゃなくてITやマーケティングの知識で勝負する道もある。自分がどっちタイプか正直に考えてみて。"}, {"timestamp": "14:43", "seconds": 883.7, "summary": "アセットマネジメントは「レシピを作る業界」、信託銀行は「キッチン」——この例え、飲食店の人間としてもすごくしっくりくる。", "detail": "レシピ考える人が直接お客さんの料理作ったら、自分の好みで味変えちゃうかもしれないでしょ。だからレシピ係とキッチン係を分ける。動画の説明うまいよね。信託銀行の常連さんに聞いたことあるんだけど、「富裕層の資産を預かるから信頼関係が命。でもその分、一人のお客さんと一生付き合える」って。深く長い関係を築くのが好きな人には向いてる業界。——あんたが次にやること？ この動画で出てきた業界の中から「自分の性格に近いかも」って思ったのを2つくらいピックアップしておいて。Step 3の自己分析で、それが手がかりになるから。"}], "step2_kouri": [{"timestamp": "0:02", "seconds": 2.3, "summary": "小売業界って「接客だけでしょ？」って思ってない？ この動画、百貨店からコンビニからユニクロまで、裏側の仕事を全部見せてくれるやつだよ。", "detail": "私も新橋で飲食店やってるからわかるけど、お客さんの前に立つ時間って仕事全体の一部なんだよね。仕入れ、メニュー考え、仕込み、在庫管理——裏方の方がよっぽど時間かかる。小売も同じで、接客の裏にバイヤーとか商品開発とか店舗設計とか、見えない仕事がたくさんある。この動画はそれを全部見せてくれるから、小売に興味あるなしに関わらず見る価値あると思う。"}, {"timestamp": "2:30", "seconds": 150.2, "summary": "バイヤーっていう職種、「売れる商品を見極めるプロ」ってサラッと言ってるけど、なるのが相当大変だって話は知っておいた方がいい。", "detail": "うちで仕入れやってる立場で言うと、「何が売れるか」ってデータだけじゃ絶対わかんないの。現場でお客さんの反応を何年も見て、やっと「あ、これ来る」って嗅覚がつく。だから大抵の会社では、まず店舗で接客を経験してからバイヤーに行くルートが一般的。最初から華やかな仕事ができるわけじゃないけど、その下積みの意味は確実にある。"}, {"timestamp": "2:56", "seconds": 176.4, "summary": "OFC——聞いたことない職種でしょ。でもセブンイレブンの本部社員のメイン職種がこれなんだって。", "detail": "フランチャイズのオーナーに経営アドバイスする仕事ね。動画が「売上や販売数のデータから分析して情報提供する」って言ってるけど、実はこれ、めちゃくちゃ信頼関係が要る仕事なの。オーナーさんって自分のお金でリスク取って店やってる人でしょ。そういう人に「陳列こう変えましょう」って提案するのは、相手の人生に踏み込むようなもん。データ分析ができるだけじゃダメで、信頼関係が作れないと話聞いてもらえない。私が毎日カウンターでやってることに近いかもしれない。"}, {"timestamp": "5:07", "seconds": 307.7, "summary": "「OFCに当たる職種が全体の8割」「商品開発に行けるのはごくわずか」——ここ、動画がさらっと言ったけど、めちゃくちゃ重要な数字だよ。", "detail": "ファミリーマートの内定者の話として、8割がOFC系の職種で、商品開発に行けるのはごくわずかって言ってるね。これ、就活生は知っておくべき現実。「商品開発やりたくて入ったのに、最初は店舗勤務です」ってなったとき、そこから何年で希望部署に行けるのか、行ける確率はどれくらいか、事前に調べた方がいい。美化しすぎるのも違うからね。ただ、動画の最後の方で言ってるように、現場に立つことで見えるものは確実にあるから、遠回りが無駄かどうかは人次第。"}, {"timestamp": "8:44", "seconds": 524.8, "summary": "ユニクロの話に入ったね。製造小売業（SPA）——自分で作って自分で売る。うちの店と同じ構造で、親近感あるんだよ。", "detail": "素材の調達からデザイン、製造、販売まで全部自分たちでやるモデル。うちだって野菜の仕入れからメニュー開発、調理、接客まで全部私がやってる。このモデルの良いところは、お客さんの反応が直接商品に返せること。動画の後で「カスタマーセンターの声をもとに新商品が生まれる」って話が出てくるけど、この循環が早い会社は強い。職種の幅も広くて、デザイナー、マーチャンダイザー、生産管理、在庫コントロール……「小売＝接客」のイメージとは全然違う世界が見えてくると思うよ。——あんたが次にやるといいのは、小売の中で気になった企業の「社員インタビュー」を読んでみること。動画の最後でも言ってるけど、具体的に働くイメージがつかめるから。"}], "step2_maker": [{"timestamp": "0:27", "seconds": 27.5, "summary": "「なんとなくコンサルがいいかな」——冒頭からいきなりグサッとくるね。BtoBメーカーって名前知らない会社ばっかりだけど、うちの常連で一番穏やかに飲むのがこの業界の人たちなんだよ。", "detail": "動画が最初に言ってるキーエンス、ファナック、DMG森、東京エレクトロン——たぶん半分も知らないでしょ。でもね、うちに来る常連さんの中で一番「自分の仕事に誇りを持ってる」のがこの業界の人たちなの。穏やかに飲むんだけど、「うちの工場がさ」って話し始めると止まらない。ものづくりを支えてるっていう静かな自信がある人たち。この動画、工場の中で何が起きてるかを全部見せてくれるやつだから、最後まで見る価値あるよ。"}, {"timestamp": "3:05", "seconds": 185.8, "summary": "PLCとCNCの2領域、ここが工場の制御の核心部分ね。動画は「人間の脊髄」って例えてるけど、要するに機械に「動け」って命令を出す仕組みのこと。", "detail": "動画で「PLCに強みを持つ三菱電機・キーエンス・オムロン、CNCに強みを持つファナック・安川電気」って分けてるでしょ。ここ、動画だとサラッと流すけど、めちゃくちゃ大事な話なの。うちの常連にFA（ファクトリーオートメーション）系の会社の人がいてね、酔うと「PLCのエンジニアが1人辞めたら、うちの工場ライン止まる」って愚痴こぼしてた。つまりこの領域の技術者って、替えが利かないくらい価値が高いの。「技術で食っていきたい」って人には、実はすごくいい領域だよ。"}, {"timestamp": "5:26", "seconds": 326.8, "summary": "共同ロボットとフィジカルAI——「ゲームチェンジャー」って動画は言ってるけど、現場の受け止め方はもうちょっと複雑なんだよね。", "detail": "動画が「ロボットに脳みそを突っ込む」って説明してるフィジカルAI、技術としてはその通りなの。ChatGPTはクラウド経由だから返答が遅い、でも工場はミリ秒単位——だからロボットの中にAIを入れる。理屈はわかる。でもね、最近うちにロボットメーカーの若手が来てさ、「工場の現場の人って、新しい技術入れるのすっごい慎重なんですよ」って。40年同じやり方でやってきたベテランに「明日からロボットと一緒に」って言うわけでしょ。技術だけじゃなくて、現場の人間をどう巻き込むかが本当の勝負。そこに関われるのがこの業界の面白さだと思う。"}, {"timestamp": "8:11", "seconds": 492.0, "summary": "マザーマシーン——機械の母。全ての機械の大元は鉄やプラスチックで、それを削って形にする工作機械がなきゃ何も始まらない。", "detail": "「機械を作るための機械を作る」って、ちょっとややこしいけど、うちで言えば料理を作る包丁そのものを鍛える鍛冶屋みたいなもん。動画がDMG森精機を「世界シェア約4%で世界2位」って言ってるけど、うちの常連の機械メーカーの人が「あそこの5軸加工機は芸術品だ」って自社製品でもないのに酔って褒めてたの。工作機械って地味に見えるけど、ものづくりの全ての出発点。ここに惹かれる人って「根っこから支える」のが好きな人だと思う。"}, {"timestamp": "10:52", "seconds": 652.2, "summary": "半導体の製造6工程——成膜、リソグラフィ、エッチング、洗浄、ダイシング、検査。ここ情報量多くてきついけど、各工程に専門企業がいるって構造が面白いから我慢して。", "detail": "正直ね、ここからしばらく専門用語の連発でダルいと思う。でも仕込みと同じで、地味な作業が後で効いてくるから。ポイントだけ押さえると——「薄い膜を何層も重ねる→回路を焼き付ける→削る→洗う→切り出す」って流れ。料理で言えばミルフィーユ作るのに近い。で、各工程にそれぞれ専門の会社がいるの。成膜は国際エレクトリック、リソはキヤノン・ニコン、エッチングは東京エレクトロン。動画が「日本のものづくりの伏線回収」って言ってるの、確かにそうなんだよ。フィルムメーカーの光学技術が半導体に活きてるとかさ。"}, {"timestamp": "16:56", "seconds": 1016.9, "summary": "「下手なコンサルに行くより、どこか1つの領域に入り浸って技術を学んでみてください」——動画の人、本音出てるね。うちの常連でコンサルから転職してきた人も同じこと言ってた。", "detail": "この動画の締めはグサッとくるよ。「行きたい企業がありません、やりたいことがありません、志望業界はコンサルです——なんて安易に言わないと思います」って。うちの常連でもさ、外資コンサルに3年いてメーカーに転職した人がいるの。「コンサルは外から見るだけ。メーカーは自分の手で動かせる。その差は想像以上にでかい」って。もちろんコンサルが悪いわけじゃないんだけど、「なんとなく人気だから」で選ぶのと「この技術を自分で動かしたい」で選ぶのじゃ、3年後の顔つきが全然違う。——あんたが次にやるといいのは、この動画で出てきた企業のうち1つでもピンときたやつをマイナビで調べてみること。"}], "step2_shosha": [{"timestamp": "0:47", "seconds": 47.6, "summary": "商社って「何やってるかわかんない」って言う就活生多いけど、ビジネスモデルは2つだけ。トレーディングと事業投資。ここ、ちゃんと聞いて。", "detail": "うちの常連で商社の人、独特なんだよね。入社2年目まで毎週来てたのに、3年目からぱたっと来なくなる。海外出張が増えるから。で、5年目にひょっこり顔出すと顔つきが別人みたいになってる。この動画、その変化の理由がわかる内容になってるから、じっくり見てみて。まずこの「トレーディングと事業投資」っていう2つのビジネスモデル、ここが全部の土台だから。"}, {"timestamp": "1:52", "seconds": 112.6, "summary": "バブル崩壊で「商社不要論」——メーカーが自分で貿易やるようになって、商社の存在意義が問われた時代があったんだよ。", "detail": "ここ大事。動画が「バブル崩壊でメーカーに余裕が出て、貿易を内製化し始めた」って言ってるでしょ。商社のトレーディングが不要になった。で、そこから事業投資に転換できたのがすごいんだよね。動画の後で説明されるけど、なぜ転換できたかっていうと、トレーディングでSCM（物の流れ）を全部抑えてたから、もう一方のECM（作る流れ）さえ押さえればビジネスが成立するって気づいたから。昔の商社マンと今の商社マン、うちのカウンターで見てると全然違う人種。「飲みの場で契約取る」時代から「投資先の経営を改善する」時代に変わったってこと。"}, {"timestamp": "4:29", "seconds": 269.2, "summary": "三菱「組織力」vs 三井「個人力」——統合報告書の言葉遣いまで違うんだって。うちのカウンターでも、この2社の人は飲み方が違うんだよ。", "detail": "これ、カウンター越しの完全な肌感覚だけどさ。三菱の人って大体グループで来るの。後輩連れて「ここの店いいんだよ」って。三井の人は一人で来ることが多い。カウンターで隣の知らない人と話し始めて、気づいたら名刺交換してる。動画が統合報告書の言葉から分析してるのがいいよね。三菱は「多彩な人材のつながりで課題を解決」、三井は「1人1人の挑戦と創造」。同じ商社でも、あんたがグループで動く方が安心するタイプか、一人で切り開く方がワクワクするタイプかで、フィット感が全然変わってくる。"}, {"timestamp": "7:39", "seconds": 459.7, "summary": "ここから歴史パート。三菱と三井の違いの根っこが明治維新——新政府側と江戸幕府側——にあるって話。この動画で一番面白いところだと思う。", "detail": "動画が「三菱は旧土佐藩、つまり新政府側。三井は江戸の日本橋」って言ってるでしょ。新政府側の三菱は製造業（三菱重工、三菱自動車）を重視した。江戸商人の三井は金融を重視した。150年前の政治的立場が、今の社風に残ってるって、すごい話だよね。うちの店だってそう。おばあちゃんの「カウンターから見える景色は外からじゃ絶対見えない」って教え、私も無意識に守ってるもん。企業のDNAって、創業者の思想が染みついてるんだよ。「この会社のDNA、自分に合うかな」って考えるのは、結構大事だと思う。"}, {"timestamp": "12:04", "seconds": 724.1, "summary": "伊藤忠と丸紅が兄弟だって知ってた？ 大阪商人の三方よしから生まれた2社が、川下と川上で全然違う道に進んだ話。", "detail": "動画がここから丁寧に説明してくれるんだけど、ポイントは「タイミング」。丸紅は1966年に繊維商社から総合商社化して、三菱・三井が手を出してなかった穀物事業で成功した。伊藤忠はその10年後、1977年に安宅産業を救済合併して総合商社になったけど、もう川上は三菱・三井・丸紅の3Mに抑えられてた。だから川下——消費者に近いところ——で勝負することにした。うちで例えるなら、伊藤忠はお客さんの顔見ながら「今日はこれ美味しいよ」って勧めるスタイル。丸紅は築地で一番いい魚を仕入れてくるスタイル。どっちが自分に合うかだよね。"}, {"timestamp": "17:17", "seconds": 1038.0, "summary": "5社の違い、整理できた？ 製造業の三菱、金融の三井、新種の住友、現場の伊藤忠、穀物の丸紅。——最後に「中の人」の話を一つだけ。", "detail": "うちの常連の商社マンが酔って言ってた言葉で印象に残ってるのがあってさ。「商社は入った瞬間に、自分がちっぽけだって思い知る場所だ」って。世界規模のプロジェクトに関わるわけでしょ。自分一人じゃ何もできない。でもだからこそ「人と一緒に動かす力」がつくって。——あんたが次にやるといいのは、5社のうち2社くらいに絞って、新卒採用ページの「求める人材像」を比べてみること。動画で言ってた「組織の三菱・個人の三井・発想の住友・現場の伊藤忠・競争の丸紅」の違いが、採用ページの言葉遣いにもはっきり出てるから。"}], "step3_self_analysis": [{"timestamp": "2:15", "seconds": 135.1, "summary": "自己分析の目的——「幸せな人生を送るため」ってシンプルに言い切ったね。これ、すごく大事な前提だから忘れないで。", "detail": "「また自己分析か」って思った？ わかるよ。でもさっき業界の動画見てきたでしょ。「この業界ではこういう人が求められる」っていう具体的なイメージがある状態で自分のことを考えると、前とは全然違う感覚になるはず。石坂さんが「幸せな人生を送るため」って目的を最初に置いたの、これ正解だと思うの。就活のためじゃなくて、人生のために自己分析する。そのうちの最初の一歩が今なんだよ。"}, {"timestamp": "2:41", "seconds": 161.7, "summary": "「自己分析にどこまでやれば終わりがあるのか」——うちの常連のおっちゃんたち、40代50代でまだ「自分って何なんだろう」って言ってるよ。", "detail": "就活生の子が「終わりがわからない」って言ってるの、すごく正直でいいね。でもね、うちに来る40代50代の社会人だって、酔うと「俺、本当にこの仕事合ってたのかな」って言うんだよ。自己分析って一生続くもので、就活のときに完璧に終わるもんじゃない。だから今の段階では「80%くらいの仮説」で十分。その仮説を持って行動して、修正して、また行動する——その繰り返しが就活だよ。"}, {"timestamp": "4:36", "seconds": 276.9, "summary": "「大学時代に貫いていた信念は？」——この質問、答えに詰まるところが一番大事なんだよ。", "detail": "動画の2人が実際に考えてる姿、見てて面白いでしょ。サビアさんは「常に挑戦」、高橋さんは「飛びつくことと友人」って答えてるけど、答えに至るまでの間がいいの。スラスラ答えられることって自分がわかってること。詰まるところに、まだ言語化できてない自分がいる。私も「みなと屋を継いだ理由は？」って聞かれたら一瞬詰まる。「おばあちゃんの店だから」って答えるけど、本当の理由はもっと複雑で——まあそれは置いとくけど。"}, {"timestamp": "9:47", "seconds": 587.8, "summary": "「0から1を作るのが好き」って人と「人を支えるのが好き」って人——自分がどっちか、さっきの業界と照らし合わせてみて。", "detail": "動画で2人の自己分析が進むにつれて「攻めるタイプ」と「支えるタイプ」がはっきり分かれてくるでしょ。うちのカウンターで見ててもそう。自分から話しかけてくる人と、隣の人に話しかけられるのを待ってる人がいる。で、さっき見た業界の中で——商社や証券は攻めが求められる。信金や公務員は支えが求められる。メーカーは技術で支えるタイプ。自分がどっちの時にエネルギーが出るかで、合う業界が変わってくるからね。"}, {"timestamp": "13:22", "seconds": 802.2, "summary": "「広告代理店だけに絞らなくて」——石坂さんのこのアドバイス、めちゃくちゃ大事。業界で選ぶだけじゃなくて「職種で選ぶ」って視点もある。", "detail": "石坂さんが「事業会社のマーケティング部門もあるよ」って言ったの、視野を広げるすごくいいアドバイスだよ。「広告やりたい」→広告代理店、って一直線に考えがちだけど、メーカーにもIT企業にもマーケティング部門はある。しかも事業会社なら自分の製品を持ってるから、愛着が湧きやすいっていう話もある。「業界で選ぶ」だけじゃなくて「やりたい仕事（職種）で選ぶ」って軸を持てると、選択肢がぐっと広がるよ。"}, {"timestamp": "14:53", "seconds": 893.1, "summary": "自己分析の3ステップ——①自分で考える→②他者に聞く→③実際に体験する。石坂さんが一番大事って言ったのは③の体験。", "detail": "石坂さんが「インターンシップとかアルバイトとかで実際に体験する」のが一番大事って言ったの、ほんとそう。頭で考えてるだけじゃわかんないことって山ほどある。私だって「飲食店やりたい」って思ったのと、実際に毎朝4時半に起きて築地行って仕込みして深夜まで働くのとでは全然違った。でもやってみて初めて「あ、これ自分に合ってる」ってわかったから。——あんたが次にやるべきこと2つ。1つ目は、さっき見た業界の中で気になった企業をマイナビで2〜3社調べてみること。2つ目は、できればインターンか説明会に1つ申し込むこと。頭だけじゃなくて体で確かめるのが一番早いから。"}]};
+
+// ─── Video config ───
+const STEP2_VIDEOS = {
+  step2_maker:  { vid: "LuzDCM9K0oQ", label: "メーカー" },
+  step2_shosha: { vid: "Ho9MIg5sFgc", label: "商社" },
+  step2_kouri:  { vid: "n31050hvn70", label: "小売" },
+  step2_kinyu:  { vid: "HFEPAL-SQN8", label: "金融" },
+  step2_infra:  { vid: "SEk2pY_NFzo", label: "サービス" },
+  step2_it:     { vid: "8ppt1vYEMKQ", label: "IT・通信" },
+  step2_ad:     { vid: "rTgewY2vl-c", label: "マスコミ・広告" },
+  step2_gov:    { vid: "6ShgFfnXgLg", label: "官公庁・団体" },
+};
+
+let selectedIndustry = null;
+let activePollers = {};
+
+// ─── YouTube IFrame API ───
+const tag = document.createElement('script');
+tag.src = 'https://www.youtube.com/iframe_api';
+document.head.appendChild(tag);
+
+const players = {};
+function onYouTubeIframeAPIReady() {
+  // Step 1 player
+  players.step1 = new YT.Player('player-step1', {
+    events: { onStateChange: (e) => handleStateChange('step1', e) }
+  });
+  // Step 3 player (will init when visible)
+  players.step3 = new YT.Player('player-step3', {
+    events: { onStateChange: (e) => handleStateChange('step3', e) }
+  });
+}
+
+function handleStateChange(key, event) {
+  if (event.data === YT.PlayerState.PLAYING) {
+    startPolling(key);
+  } else {
+    stopPolling(key);
+  }
+}
+
+function startPolling(playerKey) {
+  if (activePollers[playerKey]) return;
+  activePollers[playerKey] = setInterval(() => {
+    const player = players[playerKey];
+    if (!player || !player.getCurrentTime) return;
+    const time = player.getCurrentTime();
+    updateReactions(playerKey, time);
+  }, 500);
+}
+
+function stopPolling(playerKey) {
+  if (activePollers[playerKey]) {
+    clearInterval(activePollers[playerKey]);
+    delete activePollers[playerKey];
+  }
+}
+
+// ─── Reaction display ───
+function renderReactions(containerId, reactionsKey) {
+  const container = document.getElementById(containerId);
+  const items = REACTIONS[reactionsKey];
+  if (!items) return;
+  container.innerHTML = '';
+  items.forEach((r, i) => {
+    const div = document.createElement('div');
+    div.className = 'reaction';
+    div.dataset.seconds = r.seconds;
+    div.innerHTML = `
+      <div class="ts">${r.timestamp}</div>
+      <div class="summary">${r.summary}</div>
+      <button class="detail-toggle" onclick="toggleDetail(this)">▼ もっと詳しく</button>
+      <div class="detail">${r.detail.replace(/\n/g, '<br>')}</div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function updateReactions(playerKey, currentTime) {
+  let containerId;
+  if (playerKey === 'step1') containerId = 'reactions-step1';
+  else if (playerKey === 'step2') containerId = 'reactions-step2';
+  else if (playerKey === 'step3') containerId = 'reactions-step3';
+
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.querySelectorAll('.reaction').forEach(el => {
+    const ts = parseFloat(el.dataset.seconds);
+    if (currentTime >= ts - 2 && !el.classList.contains('visible')) {
+      el.classList.add('visible');
+    }
+  });
+
+  // Show bridge2 after step2 video ends
+  if (playerKey === 'step2') {
+    const player = players.step2;
+    if (player && player.getDuration && currentTime > player.getDuration() - 5) {
+      showBridge2();
+    }
+  }
+  // Show summary after step3 video ends
+  if (playerKey === 'step3') {
+    const player = players.step3;
+    if (player && player.getDuration && currentTime > player.getDuration() - 5) {
+      showSummary();
+    }
+  }
+}
+
+function toggleDetail(btn) {
+  const detail = btn.nextElementSibling;
+  const isOpen = detail.classList.toggle('open');
+  btn.textContent = isOpen ? '▲ 閉じる' : '▼ もっと詳しく';
+}
+
+// ─── Industry selection ───
+document.querySelectorAll('.industry-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.dataset.key;
+    const label = btn.dataset.label;
+    const vid = btn.dataset.vid;
+    selectedIndustry = { key, label, vid };
+
+    // Show step 2 section
+    document.getElementById('sec-step2').classList.add('active');
+
+    // Update label
+    document.getElementById('step2-label').textContent = label + ' 深掘り';
+
+    // Bridge text
+    document.getElementById('step2-bridge-text').innerHTML =
+      `【${label}】ね。ふーん、あんたそっち気になるんだ。<br><br>` +
+      `じゃあもうちょっと突っ込んで見てみようか。次の動画は${label}についてもう少し詳しくやってるやつ。<br><br>` +
+      `さっきの動画が「地図」だとしたら、次は「その街に実際に行ってみる」感じね。私も知ってること横から足してくよ。`;
+
+    // Load video
+    const iframe = document.getElementById('player-step2');
+    iframe.src = `https://www.youtube.com/embed/${vid}?enablejsapi=1`;
+
+    // Init player after iframe loads
+    setTimeout(() => {
+      players.step2 = new YT.Player('player-step2', {
+        events: { onStateChange: (e) => handleStateChange('step2', e) }
+      });
+    }, 500);
+
+    // Render reactions
+    renderReactions('reactions-step2', key);
+
+    // Scroll to step 2
+    setTimeout(() => {
+      document.getElementById('sec-step2').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 200);
+
+    // Disable buttons
+    document.querySelectorAll('.industry-btn').forEach(b => {
+      b.disabled = true;
+      b.style.opacity = b === btn ? '1' : '0.3';
+    });
+  });
+});
+
+// ─── Bridge 2 ───
+let bridge2Shown = false;
+function showBridge2() {
+  if (bridge2Shown || !selectedIndustry) return;
+  bridge2Shown = true;
+  const label = selectedIndustry.label;
+  const card = document.getElementById('bridge2-card');
+  document.getElementById('bridge2-text').innerHTML =
+    `<p>ここまでで、${label}がどんな世界か、だいぶ見えてきたんじゃない？</p>` +
+    `<p>動画で言ってた話と、私がカウンター越しに見てきた話、合わせるとなかなか立体的になったでしょ。</p>` +
+    `<p>——で、ここからがちょっと大事な話なんだけど。</p>` +
+    `<p>業界のことがわかっても、「じゃあ自分はそこに合うのか」って別の問題なんだよね。うちの常連でもさ、「この業界面白いと思って入ったのに、なんか違った」って人、いるの。逆に、「正直なんとなく入ったけど、意外と自分に合ってた」って人もいる。</p>` +
+    `<p>この違いって何かっていうと、結局「自分のことをどのくらいわかってたか」なんだよね。</p>` +
+    `<p>自己分析ってやつ、前にやったことあるんでしょ？ しっくりこなかったって聞いたけど——それ、たぶん今ならちょっと違う感じで見れると思う。業界のこと何も知らない状態で「自分の強みは？」って聞かれても、そりゃ答えようがないもん。でも今は「${label}ってこういう世界なんだ」っていう具体的なイメージがあるでしょ。そのイメージと自分を照らし合わせる——って考えると、さっきよりは考えやすいと思うよ。</p>` +
+    `<p>次の動画、自己分析の話なんだけど、さっき見た業界のことを頭に置きながら見てみて。「この業界で求められてること、自分にあるかな？」って視点で見ると、ただの自己分析が急に意味持ち始めるから。</p>`;
+  card.style.display = 'block';
+
+  // Show step 3
+  document.getElementById('sec-step3-inner').style.display = 'block';
+  renderReactions('reactions-step3', 'step3_self_analysis');
+
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+}
+
+// ─── Summary ───
+let summaryShown = false;
+function showSummary() {
+  if (summaryShown || !selectedIndustry) return;
+  summaryShown = true;
+  const label = selectedIndustry.label;
+  const card = document.getElementById('summary-card');
+  document.getElementById('summary-text').innerHTML =
+    `<p>お疲れさま。ここまで一気に見てきたね。</p>` +
+    `<p>整理すると、今日やったのはこういうこと。</p>` +
+    `<p><strong>①</strong> 業界の全体像を見て、世の中にどんな仕事があるかの地図を手に入れた<br>` +
+    `<strong>②</strong> ${label}について深掘りして、中で働いてる人のリアルを知った<br>` +
+    `<strong>③</strong> その上で、自分のことをもう一回考え直してみた</p>` +
+    `<p>——で、ここからが本番なんだけど。</p>` +
+    `<p>あんたが次にやるといいのは、<strong>${label}の企業を2〜3社、マイナビで実際に調べてみること</strong>。業界の全体像と、自分の特性がなんとなく見えた今なら、企業のページを見る目が前とは変わってるはず。</p>` +
+    `<p>「この会社、さっきの動画で言ってた〇〇に当てはまるな」とか、「ここの仕事内容、自分の△△と合いそうだな」とか、感じることがあると思う。</p>` +
+    `<p>全部わかんなくていいからね。わかんないことが出てきたら、それが次に調べることだから。就活の仕込みって、そういう地味な繰り返しなの。料理と一緒でさ、一回で完成する仕込みなんてないんだよ。</p>` +
+    `<p>……って、柄にもなくいいこと言っちゃったかな。ま、うちの店にも気が向いたら来てよ。ポテサラ出すから。</p>`;
+  card.style.display = 'block';
+  setTimeout(() => card.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+}
+
+// ─── Manual bridge2/summary triggers (for when user finishes video without API detecting end) ───
+// Add "次へ" buttons as fallback
+document.addEventListener('DOMContentLoaded', () => {
+  // After step2 reactions area, add a manual trigger
+  const step2Area = document.getElementById('reactions-step2');
+  const nextBtn2 = document.createElement('button');
+  nextBtn2.className = 'industry-btn';
+  nextBtn2.style.cssText = 'width:100%;margin:24px 0;background:var(--accent-dim);color:var(--bg);font-weight:700';
+  nextBtn2.textContent = '動画を見終わったら → 次へ進む';
+  nextBtn2.addEventListener('click', () => { showBridge2(); nextBtn2.style.display = 'none'; });
+  step2Area.parentNode.insertBefore(nextBtn2, step2Area.nextSibling);
+
+  // After step3 reactions area
+  const step3Area = document.getElementById('reactions-step3');
+  const nextBtn3 = document.createElement('button');
+  nextBtn3.className = 'industry-btn';
+  nextBtn3.style.cssText = 'width:100%;margin:24px 0;background:var(--accent-dim);color:var(--bg);font-weight:700';
+  nextBtn3.textContent = '動画を見終わったら → まとめを見る';
+  nextBtn3.addEventListener('click', () => { showSummary(); nextBtn3.style.display = 'none'; });
+  step3Area.parentNode.insertBefore(nextBtn3, step3Area.nextSibling);
+});
+</script>
+
+</body>
+</html>
