@@ -254,7 +254,7 @@ function showReaction(playerKey, rKey, time) {
       const r = items[i];
       return '<div class="hi"><span class="r-ts">'+r.timestamp+'</span> '+r.summary+'</div>';
     }).join("");
-    hHTML = '<div class="rh"><button class="ht" onclick="this.nextElementSibling.classList.toggle('open');this.textContent=this.nextElementSibling.classList.contains('open')?'▲ 過去のコメントを閉じる':'▼ 過去のコメント（'+hist.length+'件）'">▼ 過去のコメント（'+hist.length+'件）</button><div class="hl">'+hc+'</div></div>';
+    hHTML = '<div class="rh"><button class="ht" onclick="toggleHistory(this,'+hist.length+')">▼ 過去のコメント（'+hist.length+'件）</button><div class="hl">'+hc+'</div></div>';
   }
 
   area.innerHTML = '<div class="reaction"><div class="r-header"><img class="r-avatar" src="'+AVATAR_B64+'" alt="なつめ"><div class="r-meta"><span class="r-name">なつめ</span><span class="r-ts">'+latest.timestamp+'</span></div></div><div class="r-summary">'+latest.summary+'</div><button class="detail-toggle" onclick="toggleDetail(this)">▼ もっと詳しく</button><div class="r-detail">'+latest.detail.replace(/\n/g,"<br>")+'</div></div>'+hHTML;
@@ -264,6 +264,12 @@ function toggleDetail(btn) {
   const d = btn.nextElementSibling;
   const o = d.classList.toggle("open");
   btn.textContent = o ? "▲ 閉じる" : "▼ もっと詳しく";
+}
+
+function toggleHistory(btn, count) {
+  const list = btn.nextElementSibling;
+  const isOpen = list.classList.toggle("open");
+  btn.textContent = isOpen ? "▲ 過去のコメントを閉じる" : "▼ 過去のコメント（" + count + "件）";
 }
 </script>
 </body>
